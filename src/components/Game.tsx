@@ -463,6 +463,37 @@ const Game: FC<{
 
     return (
         <>
+            <div className="level">
+                <div className="level-selector">
+                    <label>关卡: </label>
+                    <select
+                        value={level}
+                        onChange={(e) => selectLevel(Number(e.target.value))}
+                    >
+                        {Array.from({ length: maxLevel }, (_, i) => i + 1).map(
+                            (l) => (
+                                <option key={l} value={l}>
+                                    {l}
+                                </option>
+                            )
+                        )}
+                    </select>
+                </div>
+                <div className="game-stats">
+                    <div className="stat-item">
+                        <span className="stat-label">剩余</span>
+                        <span className="stat-value">{scene.filter((i) => i.status === 0).length}</span>
+                    </div>
+                    <div className="stat-item">
+                        <span className="stat-label">得分</span>
+                        <span className="stat-value">{score}</span>
+                    </div>
+                    <div className="stat-item">
+                        <span className="stat-label">用时</span>
+                        <span className="stat-value">{timestampToUsedTimeString(usedTime)}</span>
+                    </div>
+                </div>
+            </div>
             <div className="game">
                 <div className="scene-container">
                     <div className="scene-inner">
@@ -498,27 +529,6 @@ const Game: FC<{
                 <button className="flex-grow" onClick={levelUp}>
                     下一关
                 </button>
-            </div>
-            <div className="level">
-                <div className="level-selector">
-                    <label>关卡: </label>
-                    <select
-                        value={level}
-                        onChange={(e) => selectLevel(Number(e.target.value))}
-                        style={{ marginLeft: '8px' }}
-                    >
-                        {Array.from({ length: maxLevel }, (_, i) => i + 1).map(
-                            (l) => (
-                                <option key={l} value={l}>
-                                    {l}
-                                </option>
-                            )
-                        )}
-                    </select>
-                </div>
-                <div>剩余: {scene.filter((i) => i.status === 0).length}</div>
-                <div>得分: {score}</div>
-                <div>用时: {timestampToUsedTimeString(usedTime)}</div>
             </div>
             {/*积分、排行榜*/}
             <Suspense fallback={<span>rank list</span>}>

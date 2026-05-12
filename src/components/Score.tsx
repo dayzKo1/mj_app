@@ -186,7 +186,7 @@ const Score: FC<{
                 {success && <Fireworks />}
             </Suspense>
             <div className={style.inner}>
-                {success ? <h1>🎉恭喜通关！</h1> : <h1>😫就差一点！</h1>}
+                {success ? <h1>恭喜通关！</h1> : <h1>挑战失败！</h1>}
                 <table>
                     <thead>
                         <tr>
