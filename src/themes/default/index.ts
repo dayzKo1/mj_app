@@ -38,6 +38,5 @@ export const getDefaultTheme: () => Theme<DefaultSoundNames> = () => {
                 src: 'https://minio.streakingman.com/solvable-sheep-game/sound-triple.mp3',
             },
         ],
-        bgm: 'https://minio.streakingman.com/solvable-sheep-game/sound-disco.mp3',
     };
 };

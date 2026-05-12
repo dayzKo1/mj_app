@@ -7,17 +7,7 @@ export const Title: FC<{ title: string; desc?: string }> = ({
 }) => {
     return (
         <>
-            <h1 className={style.title}>
-                {[...title].map((str, i) => (
-                    <span
-                        className={style.item}
-                        style={{ animationDelay: i / 10 + 's' }}
-                        key={`${i}`}
-                    >
-                        {str}
-                    </span>
-                ))}
-            </h1>
+            <h1 className={style.title}>{title}</h1>
             {desc && <h2 className={style.description}>{desc}</h2>}
         </>
     );

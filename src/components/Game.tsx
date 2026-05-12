@@ -311,6 +311,18 @@ const Game: FC<{
         }
     };
 
+    // 选择关卡
+    const selectLevel = (newLevel: number) => {
+        if (newLevel < 1 || newLevel > maxLevel) {
+            return;
+        }
+        setScore(score - Math.abs(newLevel - level));
+        setFinished(false);
+        setLevel(newLevel);
+        setQueue([]);
+        checkCover(makeScene(newLevel, theme.icons));
+    };
+
     // 加大难度，该方法由玩家点击下一关触发
     const levelUp = () => {
         if (level >= maxLevel) {
@@ -488,12 +500,25 @@ const Game: FC<{
                 </button>
             </div>
             <div className="level">
-                关卡{level}/{maxLevel} 剩余
-                {scene.filter((i) => i.status === 0).length}
-                <br />
-                得分{score}
-                <br />
-                用时{timestampToUsedTimeString(usedTime)}
+                <div className="level-selector">
+                    <label>关卡: </label>
+                    <select
+                        value={level}
+                        onChange={(e) => selectLevel(Number(e.target.value))}
+                        style={{ marginLeft: '8px' }}
+                    >
+                        {Array.from({ length: maxLevel }, (_, i) => i + 1).map(
+                            (l) => (
+                                <option key={l} value={l}>
+                                    {l}
+                                </option>
+                            )
+                        )}
+                    </select>
+                </div>
+                <div>剩余: {scene.filter((i) => i.status === 0).length}</div>
+                <div>得分: {score}</div>
+                <div>用时: {timestampToUsedTimeString(usedTime)}</div>
             </div>
             {/*积分、排行榜*/}
             <Suspense fallback={<span>rank list</span>}>

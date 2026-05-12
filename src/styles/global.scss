@@ -21,13 +21,28 @@ body {
 button {
     color: white;
     border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    background-color: #3338;
+    padding: 10px 16px;
+    border-radius: 6px;
+    background-color: #4a4a6a;
     cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background-color: #5a5a7a;
+        transform: translateY(-1px);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
 
     &.primary {
-        background-color: #747bff;
+        background-color: #6366f1;
+        
+        &:hover {
+            background-color: #7c7ff7;
+        }
     }
 }
 

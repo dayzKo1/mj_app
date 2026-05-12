@@ -12,7 +12,6 @@ import {
 import { Theme } from './themes/interface';
 import Game from './components/Game';
 import { Title } from './components/Title';
-import { PersonalInfo } from './components/PersonalInfo';
 import { Info } from './components/Info';
 const ThemeChanger = React.lazy(() => import('./components/ThemeChanger'));
 const ConfigDialog = React.lazy(() => import('./components/ConfigDialog'));
@@ -86,7 +85,6 @@ const App: FC<{ theme: Theme<any> }> = ({ theme: initTheme }) => {
                 initScore={initScore}
                 initTime={initTime}
             />
-            <PersonalInfo />
             <div className={'flex-spacer'} style={{ minHeight: 52 }} />
             <Suspense fallback={<span>Loading</span>}>
                 {!__DIY__ && !theme.pure && <WxQrCode />}
