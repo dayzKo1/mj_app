@@ -4,6 +4,7 @@ import React, {
     useEffect,
     useRef,
     useState,
+    useMemo,
     Suspense,
 } from 'react';
 import './Game.scss';
@@ -167,12 +168,91 @@ const Game: FC<{
     const [level, setLevel] = useState<number>(initLevel);
     const [score, setScore] = useState<number>(initScore);
     const [queue, setQueue] = useState<MySymbol[]>([]);
-    const [sortedQueue, setSortedQueue] = useState<
-        Record<MySymbol['id'], number>
-    >({});
     const [finished, setFinished] = useState<boolean>(false);
     const [success, setSuccess] = useState<boolean>(false);
     const [animating, setAnimating] = useState<boolean>(false);
+
+    // 场景和队列容器的 ref，用于计算位置
+    const sceneRef = useRef<HTMLDivElement>(null);
+    const queueRef = useRef<HTMLDivElement>(null);
+    const symbolRef = useRef<HTMLDivElement>(null);
+    const [queueY, setQueueY] = useState<number>(945);
+
+    // 计算队列区域的 y 坐标
+    // translateY(y%) 的百分比是相对于卡片自身的高度
+    // 所以需要计算：从场景顶部到队列中心需要移动多少个"卡片高度"
+    useEffect(() => {
+        const calculateQueueY = () => {
+            if (sceneRef.current && queueRef.current) {
+                const sceneRect = sceneRef.current.getBoundingClientRect();
+                const queueRect = queueRef.current.getBoundingClientRect();
+
+                // 队列区域中心相对于场景容器顶部的像素距离
+                // 减去半个卡片高度，使卡片中心对齐队列中心
+                const sceneWidth = sceneRect.width;
+                const symbolHeight = sceneWidth * 0.1667;
+
+                const queueCenterY =
+                    queueRect.top -
+                    sceneRect.top +
+                    queueRect.height / 2 -
+                    symbolHeight / 2;
+
+                // y = 需要移动的距离 / 卡片高度 * 100
+                // 这样 translateY(y%) 就能正确移动到队列区域
+                const y = (queueCenterY / symbolHeight) * 100;
+
+                console.log('Queue calculation:', {
+                    queueCenterY,
+                    sceneWidth,
+                    symbolHeight,
+                    calculatedY: y,
+                });
+
+                setQueueY(y);
+            }
+        };
+
+        // 延迟计算，确保 DOM 已渲染
+        const timer = setTimeout(calculateQueueY, 100);
+        window.addEventListener('resize', calculateQueueY);
+        return () => {
+            clearTimeout(timer);
+            window.removeEventListener('resize', calculateQueueY);
+        };
+    }, []);
+
+    // 队列区排序 - 使用 useMemo 确保渲染时位置已计算好
+    const sortedQueue = useMemo(() => {
+        // 按图标名称分组，保持入队顺序
+        const cache: Record<string, MySymbol[]> = {};
+        // 记录图标首次出现的顺序，确保稳定排序
+        const iconOrder: string[] = [];
+
+        for (const symbol of queue) {
+            const iconName = symbol.icon.name;
+            if (!cache[iconName]) {
+                cache[iconName] = [];
+                iconOrder.push(iconName);
+            }
+            cache[iconName].push(symbol);
+        }
+
+        // 按图标首次出现的顺序展开，确保相同图标连续排列
+        const temp: MySymbol[] = [];
+        for (const iconName of iconOrder) {
+            temp.push(...cache[iconName]);
+        }
+
+        // 计算每个卡片的 x 位置
+        const result: Record<string, number> = {};
+        let x = 50;
+        for (const symbol of temp) {
+            result[symbol.id] = x;
+            x += 100;
+        }
+        return result;
+    }, [queue]);
 
     // 音效
     const soundRefMap = useRef<Record<string, HTMLAudioElement>>({});
@@ -198,38 +278,6 @@ const Game: FC<{
         localStorage.setItem(LAST_SCORE_STORAGE_KEY, score.toString());
         localStorage.setItem(LAST_TIME_STORAGE_KEY, usedTime.toString());
     }, [level]);
-
-    // 队列区排序
-    useEffect(() => {
-        // 按图标名称分组，保持入队顺序
-        const cache: Record<string, MySymbol[]> = {};
-        // 记录图标首次出现的顺序，确保稳定排序
-        const iconOrder: string[] = [];
-
-        for (const symbol of queue) {
-            const iconName = symbol.icon.name;
-            if (!cache[iconName]) {
-                cache[iconName] = [];
-                iconOrder.push(iconName);
-            }
-            cache[iconName].push(symbol);
-        }
-
-        // 按图标首次出现的顺序展开，确保相同图标连续排列
-        const temp: MySymbol[] = [];
-        for (const iconName of iconOrder) {
-            temp.push(...cache[iconName]);
-        }
-
-        // 计算每个卡片的 x 位置
-        const updateSortedQueue: typeof sortedQueue = {};
-        let x = 50;
-        for (const symbol of temp) {
-            updateSortedQueue[symbol.id] = x;
-            x += 100;
-        }
-        setSortedQueue(updateSortedQueue);
-    }, [queue]);
 
     // 初始化覆盖状态
     useEffect(() => {
@@ -506,7 +554,7 @@ const Game: FC<{
                 </div>
             </div>
             <div className="game">
-                <div className="scene-container">
+                <div className="scene-container" ref={sceneRef}>
                     <div className="scene-inner">
                         {scene.map((item, idx) => (
                             <Symbol
@@ -519,14 +567,14 @@ const Game: FC<{
                                         ? sortedQueue[item.id]
                                         : -1000
                                 }
-                                y={item.status === 0 ? item.y : 945}
+                                y={item.status === 0 ? item.y : queueY}
                                 onClick={() => clickSymbol(idx)}
                             />
                         ))}
                     </div>
                 </div>
             </div>
-            <div className="queue-container" />
+            <div className="queue-container" ref={queueRef} />
             <div className="flex-container flex-between">
                 <button className="flex-grow" onClick={pop}>
                     弹出
