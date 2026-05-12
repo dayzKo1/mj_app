@@ -201,20 +201,27 @@ const Game: FC<{
 
     // 队列区排序
     useEffect(() => {
+        // 按图标名称分组，保持入队顺序
         const cache: Record<string, MySymbol[]> = {};
-        // 加上索引，避免以id字典序来排
-        const idx = 0;
+        // 记录图标首次出现的顺序，确保稳定排序
+        const iconOrder: string[] = [];
+
         for (const symbol of queue) {
-            if (cache[idx + symbol.icon.name]) {
-                cache[idx + symbol.icon.name].push(symbol);
-            } else {
-                cache[idx + symbol.icon.name] = [symbol];
+            const iconName = symbol.icon.name;
+            if (!cache[iconName]) {
+                cache[iconName] = [];
+                iconOrder.push(iconName);
             }
+            cache[iconName].push(symbol);
         }
-        const temp = [];
-        for (const symbols of Object.values(cache)) {
-            temp.push(...symbols);
+
+        // 按图标首次出现的顺序展开，确保相同图标连续排列
+        const temp: MySymbol[] = [];
+        for (const iconName of iconOrder) {
+            temp.push(...cache[iconName]);
         }
+
+        // 计算每个卡片的 x 位置
         const updateSortedQueue: typeof sortedQueue = {};
         let x = 50;
         for (const symbol of temp) {
@@ -482,7 +489,9 @@ const Game: FC<{
                 <div className="game-stats">
                     <div className="stat-item">
                         <span className="stat-label">剩余</span>
-                        <span className="stat-value">{scene.filter((i) => i.status === 0).length}</span>
+                        <span className="stat-value">
+                            {scene.filter((i) => i.status === 0).length}
+                        </span>
                     </div>
                     <div className="stat-item">
                         <span className="stat-label">得分</span>
@@ -490,7 +499,9 @@ const Game: FC<{
                     </div>
                     <div className="stat-item">
                         <span className="stat-label">用时</span>
-                        <span className="stat-value">{timestampToUsedTimeString(usedTime)}</span>
+                        <span className="stat-value">
+                            {timestampToUsedTimeString(usedTime)}
+                        </span>
                     </div>
                 </div>
             </div>

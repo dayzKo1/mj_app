@@ -6,7 +6,7 @@
     "backgroundBlur": false,
     "backgroundColor": "#1a1a2e",
     "pure": true,
-    "maxLevel": 50,
+    "maxLevel": 10,
     "icons": [
         {
             "name": "Bamboo_1",
