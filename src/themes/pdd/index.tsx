@@ -1,16 +1,6 @@
-// 骚猪主题
 import React from 'react';
 import { Theme } from '../interface';
-
-const soundUrls = import.meta.glob('./sounds/*.mp3', {
-    import: 'default',
-    eager: true,
-});
-
-const sounds = Object.entries(soundUrls).map(([key, value]) => ({
-    name: key.slice(9, -4),
-    src: value,
-})) as Theme<string>['sounds'];
+import { DefaultSoundNames } from '../default';
 
 const imagesUrls = import.meta.glob('./images/*.png', {
     import: 'default',
@@ -24,14 +14,14 @@ const images = Object.entries(imagesUrls).map(([key, value]) => ({
     content: <img src={value} alt="" />,
 }));
 
-export const pddTheme: Theme<string> = {
+export const pddTheme: Theme<DefaultSoundNames> = {
     title: '🐷猪了个猪🐷',
     desc: '感谢 @猪酱的日常 提供素材',
     icons: images.map(({ name, content }) => ({
         name,
         content,
         clickSound: 'button-click',
-        tripleSound: name,
+        tripleSound: 'triple',
     })),
-    sounds,
+    sounds: [],
 };
