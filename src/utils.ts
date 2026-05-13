@@ -159,7 +159,7 @@ export const timestampToUsedTimeString: (time: number) => string = (time) => {
         const seconds = (
             (time - 1000 * 60 * 60 * hours - 1000 * 60 * minutes) /
             1000
-        ).toFixed(3);
+        ).toFixed(1);
         if (hours) {
             return `${hours}小时${minutes}分${seconds}秒`;
         } else if (minutes) {

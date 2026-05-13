@@ -47,9 +47,9 @@ const sceneRanges = [
     [1, 6],
     [1, 7],
     [0, 7],
-    [0, 8],
+    [0, 7],
 ];
-const offsets = [0, 25, -25, 50, -50];
+const offsets = [0, 10, -10, 20, -20];
 const makeScene: (level: number, icons: Icon[]) => Scene = (level, icons) => {
     // 初始图标x2
     const iconPool = icons.slice(0, 2 * level);
