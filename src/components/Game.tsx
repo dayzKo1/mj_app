@@ -178,42 +178,33 @@ const Game: FC<{
     const symbolRef = useRef<HTMLDivElement>(null);
     const [queueY, setQueueY] = useState<number>(945);
 
-    // 计算队列区域的 y 坐标
-    // translateY(y%) 的百分比是相对于卡片自身的高度
-    // 所以需要计算：从场景顶部到队列中心需要移动多少个"卡片高度"
+// 计算队列区域的 y 坐标
+    // 卡片使用 translateX(x%) translateY(y%) 定位，百分比相对于卡片自身高度
+    // scene-inner 是卡片的定位基准（top:0 即 scene-inner 顶部）
+    // queue-container 在 scene-container 下方，需要计算卡片需要移动的距离
     useEffect(() => {
         const calculateQueueY = () => {
-            if (sceneRef.current && queueRef.current) {
-                const gameRect = sceneRef.current.getBoundingClientRect();
-                const queueRect = queueRef.current.getBoundingClientRect();
-                
-                // 找到 scene-container（卡片实际所在的区域）
-                const sceneContainer = sceneRef.current.querySelector('.scene-container');
-                if (!sceneContainer) return;
-                
-                const sceneContainerRect = sceneContainer.getBoundingClientRect();
-
-                // 队列区域中心相对于场景容器顶部的像素距离
-                const queueCenterY = 
-                    queueRect.top - sceneContainerRect.top + queueRect.height / 2;
-
-                // 卡片高度 = sceneContainer 宽度 * 16.67%
-                const symbolHeight = sceneContainerRect.width * 0.1667;
-
-                // y = 需要移动的距离 / 卡片高度 * 100
-                const y = (queueCenterY / symbolHeight) * 100;
-
-                console.log('Queue calculation:', {
-                    queueCenterY,
-                    sceneContainerHeight: sceneContainerRect.height,
-                    symbolHeight,
-                    calculatedY: y,
-                });
-
-                setQueueY(y);
-            }
+            if (!sceneRef.current || !queueRef.current) return;
+            
+            const sceneContainer = sceneRef.current.querySelector('.scene-container');
+            const sceneInner = sceneRef.current.querySelector('.scene-inner');
+            if (!sceneContainer || !sceneInner) return;
+            
+            const sceneContainerRect = sceneContainer.getBoundingClientRect();
+            const queueRect = queueRef.current.getBoundingClientRect();
+            
+            // queue-container 中心相对于 scene-inner 顶部的像素距离
+            const queueCenterY = queueRect.top - sceneInner.getBoundingClientRect().top + queueRect.height / 2;
+            
+            // 卡片高度 = sceneContainer 宽度 * 16.67% (padding-bottom 比例)
+            const symbolHeight = sceneContainerRect.width * 0.1667;
+            
+            // y = 距离 / 卡片高度 * 100
+            const y = (queueCenterY / symbolHeight) * 100;
+            
+            setQueueY(y);
         };
-
+        
         // 延迟计算，确保 DOM 已渲染
         const timer = setTimeout(calculateQueueY, 100);
         window.addEventListener('resize', calculateQueueY);
@@ -221,7 +212,7 @@ const Game: FC<{
             clearTimeout(timer);
             window.removeEventListener('resize', calculateQueueY);
         };
-    }, []);
+    }, [level]);
 
     // 队列区排序 - 使用 useMemo 确保渲染时位置已计算好
     const sortedQueue = useMemo(() => {
@@ -520,22 +511,24 @@ const Game: FC<{
     return (
         <>
             <div className="level">
-                <div className="level-selector">
-                    <label>关卡: </label>
-                    <select
-                        value={level}
-                        onChange={(e) => selectLevel(Number(e.target.value))}
-                    >
-                        {Array.from({ length: maxLevel }, (_, i) => i + 1).map(
-                            (l) => (
-                                <option key={l} value={l}>
-                                    {l}
-                                </option>
-                            )
-                        )}
-                    </select>
-                </div>
                 <div className="game-stats">
+                    <div className="stat-item">
+                        <span className="stat-label">关卡</span>
+                        <span className="stat-value">
+                            <select
+                                value={level}
+                                onChange={(e) => selectLevel(Number(e.target.value))}
+                            >
+                                {Array.from({ length: maxLevel }, (_, i) => i + 1).map(
+                                    (l) => (
+                                        <option key={l} value={l}>
+                                            {l}
+                                        </option>
+                                    )
+                                )}
+                            </select>
+                        </span>
+                    </div>
                     <div className="stat-item">
                         <span className="stat-label">剩余</span>
                         <span className="stat-value">

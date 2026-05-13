@@ -12,8 +12,7 @@
 .scene {
     &-container {
         width: 100%;
-        flex: 1 1 0;
-        min-height: 100px;
+        padding-bottom: 65%;
         position: relative;
         background: rgba(0, 0, 0, 0.1);
         border-radius: 16px;
@@ -147,58 +146,6 @@
     position: relative;
     z-index: 1;
     
-    .level-selector {
-        margin-bottom: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        
-        label {
-            font-weight: 600;
-            font-size: 0.9em;
-            color: rgba(255, 255, 255, 0.7);
-        }
-        
-        select {
-            background: linear-gradient(135deg, #5a5a7a 0%, #4a4a6a 100%);
-            color: white;
-            border: 2px solid rgba(99, 102, 241, 0.3);
-            padding: 6px 12px;
-            border-radius: 10px;
-            font-size: 0.85em;
-            cursor: pointer;
-            font-weight: 600;
-            box-shadow: 
-                0 2px 8px rgba(0, 0, 0, 0.3),
-                0 4px 16px rgba(99, 102, 241, 0.2);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            min-width: 70px;
-            
-            &:hover {
-                background: linear-gradient(135deg, #6a6a8a 0%, #5a5a7a 100%);
-                border-color: rgba(99, 102, 241, 0.5);
-                box-shadow: 
-                    0 4px 12px rgba(0, 0, 0, 0.4),
-                    0 8px 24px rgba(99, 102, 241, 0.3);
-                transform: translateY(-2px);
-            }
-            
-            &:active {
-                transform: translateY(0);
-                box-shadow: 
-                    0 2px 6px rgba(0, 0, 0, 0.3),
-                    0 4px 12px rgba(99, 102, 241, 0.2);
-            }
-            
-            option {
-                background-color: #3a3a5a;
-                color: white;
-                padding: 8px;
-            }
-        }
-    }
-    
     .game-stats {
         display: flex;
         justify-content: space-around;
@@ -233,6 +180,33 @@
                 text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
                 font-variant-numeric: tabular-nums;
                 font-feature-settings: "tnum";
+                
+                select {
+                    background: linear-gradient(135deg, #5a5a7a 0%, #4a4a6a 100%);
+                    color: white;
+                    border: 2px solid rgba(99, 102, 241, 0.3);
+                    padding: 4px 8px;
+                    border-radius: 8px;
+                    font-size: 0.9em;
+                    cursor: pointer;
+                    font-weight: 600;
+                    box-shadow: 
+                        0 2px 8px rgba(0, 0, 0, 0.3),
+                        0 4px 16px rgba(99, 102, 241, 0.2);
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    min-width: 50px;
+                    
+                    &:hover {
+                        background: linear-gradient(135deg, #6a6a8a 0%, #5a5a7a 100%);
+                        border-color: rgba(99, 102, 241, 0.5);
+                        transform: translateY(-1px);
+                    }
+                    
+                    option {
+                        background-color: #3a3a5a;
+                        color: white;
+                    }
+                }
             }
         }
     }
@@ -244,8 +218,7 @@
     }
     
     .scene-container {
-        flex: 1 1 0;
-        min-height: 80px;
+        padding-bottom: 55%;
     }
     
     .queue-container {
@@ -258,36 +231,27 @@
     }
     
     .level {
-        padding: 8px 0;
+        padding: 6px 0;
         
-        .level-row {
-            gap: 8px;
-            padding: 10px 12px;
-        }
-        
-        .level-selector {
+        .game-stats {
             gap: 6px;
             
-            label {
-                font-size: 0.85em;
-            }
-            
-            select {
-                padding: 5px 10px;
-                font-size: 0.85em;
-                min-width: 50px;
-            }
-        }
-        
-        .stat-item {
-            gap: 1px;
-            
-            .stat-label {
-                font-size: 0.75em;
-            }
-            
-            .stat-value {
-                font-size: 1.1em;
+            .stat-item {
+                gap: 1px;
+                
+                .stat-label {
+                    font-size: 0.7em;
+                }
+                
+                .stat-value {
+                    font-size: 1em;
+                    
+                    select {
+                        padding: 3px 6px;
+                        font-size: 0.85em;
+                        min-width: 40px;
+                    }
+                }
             }
         }
     }
@@ -304,8 +268,7 @@
 
 @media (max-width: 375px) {
     .scene-container {
-        flex: 1 1 0;
-        min-height: 60px;
+        padding-bottom: 45%;
     }
     
     .queue-container {
@@ -318,20 +281,25 @@
     }
     
     .level {
-        padding: 6px 0;
+        padding: 4px 0;
         
-        .level-row {
-            gap: 6px;
-            padding: 8px 10px;
-        }
-        
-        .stat-item {
-            .stat-label {
-                font-size: 0.7em;
-            }
+        .game-stats {
+            gap: 4px;
             
-            .stat-value {
-                font-size: 1em;
+            .stat-item {
+                .stat-label {
+                    font-size: 0.65em;
+                }
+                
+                .stat-value {
+                    font-size: 0.9em;
+                    
+                    select {
+                        padding: 2px 4px;
+                        font-size: 0.8em;
+                        min-width: 35px;
+                    }
+                }
             }
         }
     }
