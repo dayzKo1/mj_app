@@ -9,36 +9,33 @@
     flex-direction: column;
 }
 
-.scene {
-    &-container {
-        width: 100%;
-        padding-bottom: 65%;
-        position: relative;
-        background: rgba(0, 0, 0, 0.1);
-        border-radius: 16px;
-        box-shadow: 
-            0 8px 32px rgba(0, 0, 0, 0.2),
-            inset 0 1px 0 rgba(255, 255, 255, 0.05);
-    }
+.scene-container {
+    flex: 1 1 auto;
+    min-height: 0;
+    position: relative;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
 
-    &-inner {
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        top: 0;
-        overflow: visible;
-        font-size: 28px;
-    }
+.scene-inner {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    overflow: visible;
+    font-size: 28px;
 }
 
 .symbol {
     width: 12.5%;
+    // 麻将牌竖长比例 3:4，高度是宽度的 1.33倍
     padding-bottom: 16.67%;
     position: absolute;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    left: 0;
-    top: 0;
     border-radius: 10px;
 
     &-inner {
@@ -111,6 +108,15 @@
     margin-top: 12px;
     padding-bottom: env(safe-area-inset-bottom, 0);
     margin-bottom: 12px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+.flex-grow {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
 }
 
 .bgm-button {
@@ -180,6 +186,7 @@
                 text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
                 font-variant-numeric: tabular-nums;
                 font-feature-settings: "tnum";
+                white-space: nowrap;
                 
                 select {
                     background: linear-gradient(135deg, #5a5a7a 0%, #4a4a6a 100%);

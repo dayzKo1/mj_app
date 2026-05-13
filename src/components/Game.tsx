@@ -33,40 +33,68 @@ type Scene = MySymbol[];
 // 随机位置、偏移量
 const randomPositionOffset: (
     offsetPool: number[],
-    range: number[]
-) => { offset: number; row: number; column: number } = (offsetPool, range) => {
+    rowRange: number[],
+    columnRange: number[]
+) => { offset: number; row: number; column: number } = (offsetPool, rowRange, columnRange) => {
     const offset = offsetPool[Math.floor(offsetPool.length * Math.random())];
-    const row = range[0] + Math.floor((range[1] - range[0]) * Math.random());
-    const column = range[0] + Math.floor((range[1] - range[0]) * Math.random());
+    const row = rowRange[0] + Math.floor((rowRange[1] - rowRange[0]) * Math.random());
+    const column = columnRange[0] + Math.floor((columnRange[1] - columnRange[0]) * Math.random());
     return { offset, row, column };
 };
 
-// 制作场景：8*8虚拟网格  4*4->8*8
-const sceneRanges = [
-    [2, 6],
+// 制作场景：网格布局
+// X轴：每列占容器宽度的 12.5%（8列 = 100%）
+// Y轴：每行占容器高度的 25%
+// offset 可能是负数，所以 column/row 最小值要保证加上 offset 后 >= 0
+// offset 最小 = -0.5，对应偏移 -6.25%，所以 column/row 最小值 >= 0.5
+const columnRanges = [
+    [1.5, 5.5],  // 关卡1：x = 18.75% 到 68.75%
     [1, 6],
-    [1, 7],
-    [0, 7],
-    [0, 7],
+    [0.5, 6],
+    [0.5, 6],
+    [0.5, 6],
 ];
-const offsets = [0, 10, -10, 20, -20];
+const rowRanges = [
+    [1, 3.2],  // 关卡1：y = 25% 到 80%
+    [0.5, 3],
+    [0.5, 3.2],
+    [0.5, 3.3],
+    [0.5, 3.3],
+];
+// offset 是卡片宽度的百分比（用于微调位置，让卡片稍微错开）
+// 卡片宽度是容器的 12.5%，offset 会乘以 12.5 加到位置上
+// 所以 offset 值要小，避免超出容器
+// offset 最大 0.8，偏移 10% 容器宽度
+const offsets = [0, 0.3, -0.3, 0.5, -0.5];
 const makeScene: (level: number, icons: Icon[]) => Scene = (level, icons) => {
     // 初始图标x2
     const iconPool = icons.slice(0, 2 * level);
     const offsetPool = offsets.slice(0, 1 + level);
     const scene: Scene = [];
     // 网格范围，随等级由中心扩满
-    const range = sceneRanges[Math.min(4, level - 1)];
+    const levelIndex = Math.min(4, level - 1);
+    const columnRange = columnRanges[levelIndex];
+    const rowRange = rowRanges[levelIndex];
     // 在范围内随机摆放图标
     const randomSet = (icon: Icon) => {
-        const { offset, row, column } = randomPositionOffset(offsetPool, range);
+        const { offset, row, column } = randomPositionOffset(offsetPool, rowRange, columnRange);
+        // x: 容器宽度的百分比，每列 12.5%
+        // y: 容器高度的百分比，每行约 25%
+        // 卡片宽度 12.5%，高度约 22.7%（相对容器高度）
+        // 确保不超出容器边界：
+        // x >= 0, x <= 87.5%
+        // y >= 0, y <= 77%（100% - 卡片高度）
+        const rawX = column * 12.5 + offset * 12.5;
+        const rawY = row * 25 + offset * 12.5;
+        const maxX = 87.5;  // 100% - 卡片宽度
+        const maxY = 77;    // 100% - 卡片高度（约22.7%）
         scene.push({
             isCover: false,
             status: 0,
             icon,
             id: randomString(6),
-            x: column * 100 + offset,
-            y: row * 100 + offset,
+            x: Math.max(0, Math.min(maxX, rawX)),
+            y: Math.max(0, Math.min(maxY, rawY)),
         });
     };
     // 每间隔5级别增加icon池
@@ -101,12 +129,24 @@ const washScene: (level: number, scene: Scene) => Scene = (level, scene) => {
     // 打乱顺序
     const updateScene = fastShuffle(scene);
     const offsetPool = offsets.slice(0, 1 + level);
-    const range = sceneRanges[Math.min(4, level - 1)];
+    const levelIndex = Math.min(4, level - 1);
+    const columnRange = columnRanges[levelIndex];
+    const rowRange = rowRanges[levelIndex];
     // 重新设置位置
     const randomSet = (symbol: MySymbol) => {
-        const { offset, row, column } = randomPositionOffset(offsetPool, range);
-        symbol.x = column * 100 + offset;
-        symbol.y = row * 100 + offset;
+        const { offset, row, column } = randomPositionOffset(offsetPool, rowRange, columnRange);
+        // x: 容器宽度的百分比，每列 12.5%
+        // y: 容器高度的百分比，每行约 25%
+        // 卡片宽度 12.5%，高度约 22.7%
+        // 确保不超出容器边界：
+        // x >= 0, x <= 87.5%
+        // y >= 0, y <= 77%
+        const rawX = column * 12.5 + offset * 12.5;
+        const rawY = row * 25 + offset * 12.5;
+        const maxX = 87.5;
+        const maxY = 77;
+        symbol.x = Math.max(0, Math.min(maxX, rawX));
+        symbol.y = Math.max(0, Math.min(maxY, rawY));
         symbol.isCover = false;
     };
     // 仅对仍在牌堆中的进行重置
@@ -126,7 +166,8 @@ const Symbol: FC<SymbolProps> = ({ x, y, icon, isCover, status, onClick }) => {
         <div
             className="symbol"
             style={{
-                transform: `translateX(${x}%) translateY(${y}%)`,
+                left: `${x}%`,
+                top: `${y}%`,
                 backgroundColor: isCover ? '#999' : 'white',
                 opacity: status < 2 ? 1 : 0,
             }}
@@ -179,28 +220,29 @@ const Game: FC<{
     const [queueY, setQueueY] = useState<number>(945);
 
 // 计算队列区域的 y 坐标
-    // 卡片使用 translateX(x%) translateY(y%) 定位，百分比相对于卡片自身高度
-    // scene-inner 是卡片的定位基准（top:0 即 scene-inner 顶部）
-    // queue-container 在 scene-container 下方，需要计算卡片需要移动的距离
+    // 卡片使用 left(x%) top(y%) 定位，百分比相对于 scene-inner（即 scene-container）
+    // queue-container 在 scene-container 下方，scene-inner 有 overflow:visible，卡片可以超出
     useEffect(() => {
         const calculateQueueY = () => {
             if (!sceneRef.current || !queueRef.current) return;
             
             const sceneContainer = sceneRef.current.querySelector('.scene-container');
-            const sceneInner = sceneRef.current.querySelector('.scene-inner');
-            if (!sceneContainer || !sceneInner) return;
+            if (!sceneContainer) return;
             
             const sceneContainerRect = sceneContainer.getBoundingClientRect();
             const queueRect = queueRef.current.getBoundingClientRect();
             
-            // queue-container 中心相对于 scene-inner 顶部的像素距离
-            const queueCenterY = queueRect.top - sceneInner.getBoundingClientRect().top + queueRect.height / 2;
+            // queue-container 中心相对于 scene-container 顶部的像素距离
+            const queueCenterY = queueRect.top - sceneContainerRect.top + queueRect.height / 2;
             
-            // 卡片高度 = sceneContainer 宽度 * 16.67% (padding-bottom 比例)
-            const symbolHeight = sceneContainerRect.width * 0.1667;
+            // 卡片高度 = sceneContainer 宽度 * 12.5% * 4/3（padding-bottom 相对于宽度）
+            const cardHeightPixels = sceneContainerRect.width * 0.125 * (4 / 3);
             
-            // y = 距离 / 卡片高度 * 100
-            const y = (queueCenterY / symbolHeight) * 100;
+            // 让卡片中心对齐 queue-container 中心：top = queueCenter - cardHeight/2
+            const cardTopY = queueCenterY - cardHeightPixels / 2;
+            
+            // y = 距离 / scene-container 高度 * 100（百分比）
+            const y = Math.max(0, (cardTopY / sceneContainerRect.height) * 100);
             
             setQueueY(y);
         };
@@ -215,6 +257,7 @@ const Game: FC<{
     }, [level]);
 
     // 队列区排序 - 使用 useMemo 确保渲染时位置已计算好
+    // 队列中卡片宽度 12.5%，间隔约 1%，总共最多 7 张卡片
     const sortedQueue = useMemo(() => {
         // 按图标名称分组，保持入队顺序
         const cache: Record<string, MySymbol[]> = {};
@@ -236,12 +279,17 @@ const Game: FC<{
             temp.push(...cache[iconName]);
         }
 
-        // 计算每个卡片的 x 位置
+        // 计算每个卡片的 x 位置（百分比）
+        // 队列容器宽度 100%，卡片宽度 12.5%，最多 7 张卡片 = 87.5%
+        // 第一张卡片居中偏左：x = (100 - 87.5) / 2 = 6.25%
+        // 每张卡片间隔约 1%
+        const CARD_WIDTH = 12.5;
+        const GAP = 1;
         const result: Record<string, number> = {};
-        let x = 50;
+        let x = (100 - (temp.length * CARD_WIDTH + (temp.length - 1) * GAP)) / 2;
         for (const symbol of temp) {
             result[symbol.id] = x;
-            x += 100;
+            x += CARD_WIDTH + GAP;
         }
         return result;
     }, [queue]);
@@ -277,16 +325,19 @@ const Game: FC<{
     }, []);
 
     // 向后检查覆盖
+    // 卡片尺寸：宽度 12.5% 容器宽度，高度 16.67% 容器高度
+    const SYMBOL_WIDTH = 12.5;
+    const SYMBOL_HEIGHT = 16.67;
     const checkCover = (scene: Scene) => {
         const updateScene = scene.slice();
         for (let i = 0; i < updateScene.length; i++) {
-            // 当前item对角坐标
+            // 当前item对角坐标（百分比）
             const cur = updateScene[i];
             cur.isCover = false;
             if (cur.status !== 0) continue;
             const { x: x1, y: y1 } = cur;
-            const x2 = x1 + 100,
-                y2 = y1 + 100;
+            const x2 = x1 + SYMBOL_WIDTH;
+            const y2 = y1 + SYMBOL_HEIGHT;
 
             for (let j = i + 1; j < updateScene.length; j++) {
                 const compare = updateScene[j];
@@ -294,7 +345,7 @@ const Game: FC<{
                 // 两区域有交集视为选中
                 // 两区域不重叠情况取反即为交集
                 const { x, y } = compare;
-                if (!(y + 100 <= y1 || y >= y2 || x + 100 <= x1 || x >= x2)) {
+                if (!(y + SYMBOL_HEIGHT <= y1 || y >= y2 || x + SYMBOL_WIDTH <= x1 || x >= x2)) {
                     cur.isCover = true;
                     break;
                 }

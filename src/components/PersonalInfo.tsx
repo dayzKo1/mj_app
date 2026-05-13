@@ -38,29 +38,11 @@ const BiliBiliIcon: FC = () => {
 };
 
 export const GithubLink: FC = () => {
-    return (
-        <a
-            className={style.githubLink}
-            href="https://github.com/StreakingMan/solvable-sheep-game"
-            target="_blank"
-            rel="noreferrer"
-        >
-            @StreakingMan
-        </a>
-    );
+    return null;
 };
 
 export const BiliBiliLink: FC = () => {
-    return (
-        <a
-            className={style.bilibiliLink}
-            href="https://space.bilibili.com/18424564"
-            target="_blank"
-            rel="noreferrer"
-        >
-            @streaking_man
-        </a>
-    );
+    return null;
 };
 
 export const PersonalInfo: FC = () => {
