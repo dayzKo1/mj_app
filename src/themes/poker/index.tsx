@@ -16,8 +16,8 @@ const pokerCards = Object.entries(imagesUrls).map(([key, value]) => ({
 }));
 
 export const pokerTheme: Theme<DefaultSoundNames> = {
-    title: '🃏扑克牌🃏',
-    desc: '经典扑克牌主题',
+    title: '包了个包',
+    desc: '',
     dark: true,
     maxLevel: 20,
     backgroundColor: '#1a472a',
