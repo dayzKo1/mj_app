@@ -13,9 +13,7 @@ import { Theme } from './themes/interface';
 import Game from './components/Game';
 import { Title } from './components/Title';
 import { Info } from './components/Info';
-const ThemeChanger = React.lazy(() => import('./components/ThemeChanger'));
 const ConfigDialog = React.lazy(() => import('./components/ConfigDialog'));
-const WxQrCode = React.lazy(() => import('./components/WxQrCode'));
 
 const App: FC<{ theme: Theme<any> }> = ({ theme: initTheme }) => {
     console.log('initTheme', initTheme);
@@ -88,9 +86,6 @@ const App: FC<{ theme: Theme<any> }> = ({ theme: initTheme }) => {
                         initTime={initTime}
                     />
                 </div>
-                <Suspense fallback={<span>Loading</span>}>
-                    {!__DIY__ && !theme.pure && <WxQrCode />}
-                </Suspense>
                 {!__DIY__ && (
                     <div className="footer-info">
                         <p
@@ -105,15 +100,7 @@ const App: FC<{ theme: Theme<any> }> = ({ theme: initTheme }) => {
                                 <span id="busuanzi_value_site_pv" />次
                             </span>
                         </p>
-                        {!theme.pure && (
-                            <>
-                                <Info />
-                                <ThemeChanger
-                                    changeTheme={changeTheme}
-                                    onDiyClick={() => setDiyDialogShow(true)}
-                                />
-                            </>
-                        )}
+                        {!theme.pure && <Info />}
                     </div>
                 )}
                 <Suspense fallback={<span>Loading</span>}>

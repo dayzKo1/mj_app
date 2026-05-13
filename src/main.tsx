@@ -12,6 +12,7 @@ import {
     wrapThemeDefaultSounds,
 } from './utils';
 import { getDefaultTheme } from './themes/default';
+import { pokerTheme } from './themes/poker';
 import { Theme } from './themes/interface';
 
 // react渲染
@@ -105,5 +106,5 @@ if (customThemeIdFromPath) {
             });
     }
 } else {
-    successTrans(getDefaultTheme());
+    successTrans(pokerTheme);
 }
