@@ -5,6 +5,7 @@ import { fishermanTheme } from '../themes/fisherman';
 import { jinlunTheme } from '../themes/jinlun';
 import { ikunTheme } from '../themes/ikun';
 import { pddTheme } from '../themes/pdd';
+import { pokerTheme } from '../themes/poker';
 import { getDefaultTheme } from '../themes/default';
 import { Theme } from '../themes/interface';
 import WxQrCode from './WxQrCode';
@@ -15,6 +16,7 @@ const BuiltinThemes = [
     jinlunTheme,
     ikunTheme,
     pddTheme,
+    pokerTheme,
 ];
 
 const ThemeChanger: FC<{
