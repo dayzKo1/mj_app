@@ -4,10 +4,21 @@
     max-width: 500px;
     margin: 0 auto;
     position: relative;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
 
     >:not(.background) {
         z-index: 1;
     }
+}
+
+.app-container {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 .background {
@@ -18,4 +29,17 @@
     height: 100vh;
     object-fit: cover;
     z-index: 0;
+}
+
+.game-wrapper {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.footer-info {
+    flex-shrink: 0;
+    padding: 8px 0;
 }

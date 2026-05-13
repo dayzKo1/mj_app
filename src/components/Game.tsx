@@ -184,27 +184,28 @@ const Game: FC<{
     useEffect(() => {
         const calculateQueueY = () => {
             if (sceneRef.current && queueRef.current) {
-                const sceneRect = sceneRef.current.getBoundingClientRect();
+                const gameRect = sceneRef.current.getBoundingClientRect();
                 const queueRect = queueRef.current.getBoundingClientRect();
+                
+                // 找到 scene-container（卡片实际所在的区域）
+                const sceneContainer = sceneRef.current.querySelector('.scene-container');
+                if (!sceneContainer) return;
+                
+                const sceneContainerRect = sceneContainer.getBoundingClientRect();
 
                 // 队列区域中心相对于场景容器顶部的像素距离
-                // 减去半个卡片高度，使卡片中心对齐队列中心
-                const sceneWidth = sceneRect.width;
-                const symbolHeight = sceneWidth * 0.1667;
+                const queueCenterY = 
+                    queueRect.top - sceneContainerRect.top + queueRect.height / 2;
 
-                const queueCenterY =
-                    queueRect.top -
-                    sceneRect.top +
-                    queueRect.height / 2 -
-                    symbolHeight / 2;
+                // 卡片高度 = sceneContainer 宽度 * 16.67%
+                const symbolHeight = sceneContainerRect.width * 0.1667;
 
                 // y = 需要移动的距离 / 卡片高度 * 100
-                // 这样 translateY(y%) 就能正确移动到队列区域
                 const y = (queueCenterY / symbolHeight) * 100;
 
                 console.log('Queue calculation:', {
                     queueCenterY,
-                    sceneWidth,
+                    sceneContainerHeight: sceneContainerRect.height,
                     symbolHeight,
                     calculatedY: y,
                 });
@@ -553,8 +554,8 @@ const Game: FC<{
                     </div>
                 </div>
             </div>
-            <div className="game">
-                <div className="scene-container" ref={sceneRef}>
+            <div className="game" ref={sceneRef}>
+                <div className="scene-container">
                     <div className="scene-inner">
                         {scene.map((item, idx) => (
                             <Symbol
@@ -573,21 +574,21 @@ const Game: FC<{
                         ))}
                     </div>
                 </div>
-            </div>
-            <div className="queue-container" ref={queueRef} />
-            <div className="flex-container flex-between">
-                <button className="flex-grow" onClick={pop}>
-                    弹出
-                </button>
-                <button className="flex-grow" onClick={undo}>
-                    撤销
-                </button>
-                <button className="flex-grow" onClick={wash}>
-                    洗牌
-                </button>
-                <button className="flex-grow" onClick={levelUp}>
-                    下一关
-                </button>
+                <div className="queue-container" ref={queueRef} />
+                <div className="button-container flex-container flex-between">
+                    <button className="flex-grow" onClick={pop}>
+                        弹出
+                    </button>
+                    <button className="flex-grow" onClick={undo}>
+                        撤销
+                    </button>
+                    <button className="flex-grow" onClick={wash}>
+                        洗牌
+                    </button>
+                    <button className="flex-grow" onClick={levelUp}>
+                        下一关
+                    </button>
+                </div>
             </div>
             {/*积分、排行榜*/}
             <Suspense fallback={<span>rank list</span>}>

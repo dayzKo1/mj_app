@@ -1,7 +1,7 @@
 .title {
     margin: 0;
     line-height: 1.2;
-    font-size: 2.5rem;
+    font-size: 2rem;
     padding-top: 1.5rem;
     z-index: 1;
     background: linear-gradient(135deg, #e0e0e0 0%, #b0b0c0 50%, #9090a0 100%);
@@ -12,18 +12,7 @@
     font-weight: 700;
     letter-spacing: 0.05em;
     position: relative;
-    
-    &::after {
-        content: '';
-        position: absolute;
-        bottom: -8px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 60px;
-        height: 3px;
-        background: linear-gradient(90deg, transparent, #6366f1, transparent);
-        border-radius: 2px;
-    }
+
 }
 
 .title,

@@ -77,48 +77,54 @@ const App: FC<{ theme: Theme<any> }> = ({ theme: initTheme }) => {
                     }}
                 />
             )}
-            <Title title={theme.title} desc={theme.desc} />
-            <Game
-                key={theme.title}
-                theme={theme}
-                initLevel={initLevel}
-                initScore={initScore}
-                initTime={initTime}
-            />
-            <Suspense fallback={<span>Loading</span>}>
-                {!__DIY__ && !theme.pure && <WxQrCode />}
-            </Suspense>
-            {!__DIY__ && (
-                <p
-                    style={{
-                        textAlign: 'center',
-                        fontSize: 10,
-                        opacity: 0.5,
-                    }}
-                >
-                    <span id="busuanzi_container_site_pv">
-                        累计访问：
-                        <span id="busuanzi_value_site_pv" />次
-                    </span>
-                </p>
-            )}
-            {!__DIY__ && !theme.pure && (
-                <>
-                    <Info />
-                    <ThemeChanger
-                        changeTheme={changeTheme}
-                        onDiyClick={() => setDiyDialogShow(true)}
+            <div className="app-container">
+                <Title title={theme.title} desc={theme.desc} />
+                <div className="game-wrapper">
+                    <Game
+                        key={theme.title}
+                        theme={theme}
+                        initLevel={initLevel}
+                        initScore={initScore}
+                        initTime={initTime}
                     />
-                    <Suspense fallback={<span>Loading</span>}>
-                        {diyDialogShow && (
-                            <ConfigDialog
-                                closeMethod={() => setDiyDialogShow(false)}
-                                previewMethod={previewTheme}
-                            />
+                </div>
+                <Suspense fallback={<span>Loading</span>}>
+                    {!__DIY__ && !theme.pure && <WxQrCode />}
+                </Suspense>
+                {!__DIY__ && (
+                    <div className="footer-info">
+                        <p
+                            style={{
+                                textAlign: 'center',
+                                fontSize: 10,
+                                opacity: 0.5,
+                            }}
+                        >
+                            <span id="busuanzi_container_site_pv">
+                                累计访问：
+                                <span id="busuanzi_value_site_pv" />次
+                            </span>
+                        </p>
+                        {!theme.pure && (
+                            <>
+                                <Info />
+                                <ThemeChanger
+                                    changeTheme={changeTheme}
+                                    onDiyClick={() => setDiyDialogShow(true)}
+                                />
+                            </>
                         )}
-                    </Suspense>
-                </>
-            )}
+                    </div>
+                )}
+                <Suspense fallback={<span>Loading</span>}>
+                    {diyDialogShow && (
+                        <ConfigDialog
+                            closeMethod={() => setDiyDialogShow(false)}
+                            previewMethod={previewTheme}
+                        />
+                    )}
+                </Suspense>
+            </div>
         </>
     );
 };

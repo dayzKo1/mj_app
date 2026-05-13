@@ -17,7 +17,7 @@ export type DefaultSoundNames = 'button-click' | 'triple';
 
 export const getDefaultTheme: () => Theme<DefaultSoundNames> = () => {
     return {
-        title: '中国龙2复刻',
+        title: '中国龙2',
         desc: '真的可以通关~',
         dark: true,
         maxLevel: 20,

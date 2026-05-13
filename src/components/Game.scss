@@ -1,16 +1,19 @@
 .game {
     width: 100%;
     margin: 0 auto;
-    padding-top: 2%;
-    padding-bottom: 2.5%;
     position: relative;
     z-index: 1;
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .scene {
     &-container {
         width: 100%;
-        padding-bottom: 112.5%;
+        flex: 1 1 0;
+        min-height: 100px;
         position: relative;
         background: rgba(0, 0, 0, 0.1);
         border-radius: 16px;
@@ -83,9 +86,10 @@
 }
 
 .queue-container {
-    padding-bottom: 18.75%;
-    margin-bottom: 20px;
+    height: 60px;
+    flex-shrink: 0;
     position: relative;
+    margin-top: 12px;
 
     &::after {
         content: '';
@@ -101,6 +105,13 @@
             0 4px 16px rgba(0, 0, 0, 0.2),
             inset 0 1px 0 rgba(255, 255, 255, 0.1);
     }
+}
+
+.button-container {
+    flex-shrink: 0;
+    margin-top: 12px;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    margin-bottom: 12px;
 }
 
 .bgm-button {
@@ -229,17 +240,21 @@
 
 @media (max-width: 480px) {
     .game {
-        padding-top: 2%;
-        padding-bottom: 1%;
+        flex: 1 1 auto;
     }
     
     .scene-container {
-        padding-bottom: 90%;
+        flex: 1 1 0;
+        min-height: 80px;
     }
     
     .queue-container {
-        padding-bottom: 12%;
-        margin-bottom: 12px;
+        height: 50px;
+        margin-top: 8px;
+    }
+    
+    .button-container {
+        margin-top: 8px;
     }
     
     .level {
@@ -289,12 +304,17 @@
 
 @media (max-width: 375px) {
     .scene-container {
-        padding-bottom: 85%;
+        flex: 1 1 0;
+        min-height: 60px;
     }
     
     .queue-container {
-        padding-bottom: 10%;
-        margin-bottom: 10px;
+        height: 45px;
+        margin-top: 6px;
+    }
+    
+    .button-container {
+        margin-top: 6px;
     }
     
     .level {
