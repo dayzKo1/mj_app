@@ -111,11 +111,16 @@
     display: flex;
     gap: 8px;
     flex-wrap: nowrap;
+    justify-content: center;
 }
 
 .flex-grow {
     flex: 1;
     min-width: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
     white-space: nowrap;
 }
 
