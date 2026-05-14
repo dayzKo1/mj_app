@@ -234,7 +234,7 @@ const Game: FC<{
     const sceneRef = useRef<HTMLDivElement>(null);
     const queueRef = useRef<HTMLDivElement>(null);
     const symbolRef = useRef<HTMLDivElement>(null);
-    const [queueY, setQueueY] = useState<number>(85);
+    const [queueY, setQueueY] = useState<number>(945);
 
     // 计算队列区域的 y 坐标
     // 卡片使用 left(x%) top(y%) 定位，百分比相对于 scene-inner（即 scene-container）
@@ -249,8 +249,6 @@ const Game: FC<{
 
             const sceneContainerRect = sceneContainer.getBoundingClientRect();
             const queueRect = queueRef.current.getBoundingClientRect();
-
-            if (sceneContainerRect.height === 0) return;
 
             // queue-container 中心相对于 scene-container 顶部的像素距离
             const queueCenterY =
@@ -269,12 +267,10 @@ const Game: FC<{
         };
 
         // 延迟计算，确保 DOM 已渲染
-        const timer = setTimeout(calculateQueueY, 200);
-        const timer2 = setTimeout(calculateQueueY, 500);
+        const timer = setTimeout(calculateQueueY, 100);
         window.addEventListener('resize', calculateQueueY);
         return () => {
             clearTimeout(timer);
-            clearTimeout(timer2);
             window.removeEventListener('resize', calculateQueueY);
         };
     }, [level]);
@@ -590,7 +586,7 @@ const Game: FC<{
         }, 10);
     };
 
-    /** AI寻找最佳下一步 - 贪心算法 */
+    /** AI寻找最佳下一步 */
     const findBestMove = (): number | null => {
         const availableCards = scene.filter(
             (card) => card.status === 0 && !card.isCover
@@ -610,22 +606,16 @@ const Game: FC<{
             const currentInSlot = slotIconCount[card.icon.name] || 0;
             let score = 0;
 
-            if (currentInSlot === 2) {
-                score += 1000;
-            } else if (currentInSlot === 1) {
-                score += 100;
-            } else {
-                score += 10;
-            }
+            if (currentInSlot === 2) score += 1000;
+            else if (currentInSlot === 1) score += 100;
+            else score += 10;
 
             const remainingInScene = scene.filter(
                 (c) => c.status === 0 && c.icon.name === card.icon.name
             ).length;
             if (remainingInScene >= 2) score += 30;
 
-            if (queue.length >= 5 && currentInSlot === 0) {
-                score -= 50;
-            }
+            if (queue.length >= 5 && currentInSlot === 0) score -= 50;
 
             if (score > bestScore) {
                 bestScore = score;
