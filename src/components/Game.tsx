@@ -35,10 +35,17 @@ const randomPositionOffset: (
     offsetPool: number[],
     rowRange: number[],
     columnRange: number[]
-) => { offset: number; row: number; column: number } = (offsetPool, rowRange, columnRange) => {
+) => { offset: number; row: number; column: number } = (
+    offsetPool,
+    rowRange,
+    columnRange
+) => {
     const offset = offsetPool[Math.floor(offsetPool.length * Math.random())];
-    const row = rowRange[0] + Math.floor((rowRange[1] - rowRange[0]) * Math.random());
-    const column = columnRange[0] + Math.floor((columnRange[1] - columnRange[0]) * Math.random());
+    const row =
+        rowRange[0] + Math.floor((rowRange[1] - rowRange[0]) * Math.random());
+    const column =
+        columnRange[0] +
+        Math.floor((columnRange[1] - columnRange[0]) * Math.random());
     return { offset, row, column };
 };
 
@@ -48,14 +55,14 @@ const randomPositionOffset: (
 // offset 可能是负数，所以 column/row 最小值要保证加上 offset 后 >= 0
 // offset 最小 = -0.5，对应偏移 -6.25%，所以 column/row 最小值 >= 0.5
 const columnRanges = [
-    [1.5, 5.5],  // 关卡1：x = 18.75% 到 68.75%
+    [1.5, 5.5], // 关卡1：x = 18.75% 到 68.75%
     [1, 6],
     [0.5, 6],
     [0.5, 6],
     [0.5, 6],
 ];
 const rowRanges = [
-    [1, 3.2],  // 关卡1：y = 25% 到 80%
+    [1, 3.2], // 关卡1：y = 25% 到 80%
     [0.5, 3],
     [0.5, 3.2],
     [0.5, 3.3],
@@ -77,7 +84,11 @@ const makeScene: (level: number, icons: Icon[]) => Scene = (level, icons) => {
     const rowRange = rowRanges[levelIndex];
     // 在范围内随机摆放图标
     const randomSet = (icon: Icon) => {
-        const { offset, row, column } = randomPositionOffset(offsetPool, rowRange, columnRange);
+        const { offset, row, column } = randomPositionOffset(
+            offsetPool,
+            rowRange,
+            columnRange
+        );
         // x: 容器宽度的百分比，每列 12.5%
         // y: 容器高度的百分比，每行约 25%
         // 卡片宽度 12.5%，高度约 22.7%（相对容器高度）
@@ -86,8 +97,8 @@ const makeScene: (level: number, icons: Icon[]) => Scene = (level, icons) => {
         // y >= 0, y <= 77%（100% - 卡片高度）
         const rawX = column * 12.5 + offset * 12.5;
         const rawY = row * 25 + offset * 12.5;
-        const maxX = 87.5;  // 100% - 卡片宽度
-        const maxY = 77;    // 100% - 卡片高度（约22.7%）
+        const maxX = 87.5; // 100% - 卡片宽度
+        const maxY = 77; // 100% - 卡片高度（约22.7%）
         scene.push({
             isCover: false,
             status: 0,
@@ -134,7 +145,11 @@ const washScene: (level: number, scene: Scene) => Scene = (level, scene) => {
     const rowRange = rowRanges[levelIndex];
     // 重新设置位置
     const randomSet = (symbol: MySymbol) => {
-        const { offset, row, column } = randomPositionOffset(offsetPool, rowRange, columnRange);
+        const { offset, row, column } = randomPositionOffset(
+            offsetPool,
+            rowRange,
+            columnRange
+        );
         // x: 容器宽度的百分比，每列 12.5%
         // y: 容器高度的百分比，每行约 25%
         // 卡片宽度 12.5%，高度约 22.7%
@@ -212,46 +227,54 @@ const Game: FC<{
     const [finished, setFinished] = useState<boolean>(false);
     const [success, setSuccess] = useState<boolean>(false);
     const [animating, setAnimating] = useState<boolean>(false);
+    const [autoPlay, setAutoPlay] = useState<boolean>(false);
+    const autoPlayRef = useRef<boolean>(false);
 
     // 场景和队列容器的 ref，用于计算位置
     const sceneRef = useRef<HTMLDivElement>(null);
     const queueRef = useRef<HTMLDivElement>(null);
     const symbolRef = useRef<HTMLDivElement>(null);
-    const [queueY, setQueueY] = useState<number>(945);
+    const [queueY, setQueueY] = useState<number>(85);
 
-// 计算队列区域的 y 坐标
+    // 计算队列区域的 y 坐标
     // 卡片使用 left(x%) top(y%) 定位，百分比相对于 scene-inner（即 scene-container）
     // queue-container 在 scene-container 下方，scene-inner 有 overflow:visible，卡片可以超出
     useEffect(() => {
         const calculateQueueY = () => {
             if (!sceneRef.current || !queueRef.current) return;
-            
-            const sceneContainer = sceneRef.current.querySelector('.scene-container');
+
+            const sceneContainer =
+                sceneRef.current.querySelector('.scene-container');
             if (!sceneContainer) return;
-            
+
             const sceneContainerRect = sceneContainer.getBoundingClientRect();
             const queueRect = queueRef.current.getBoundingClientRect();
-            
+
+            if (sceneContainerRect.height === 0) return;
+
             // queue-container 中心相对于 scene-container 顶部的像素距离
-            const queueCenterY = queueRect.top - sceneContainerRect.top + queueRect.height / 2;
-            
+            const queueCenterY =
+                queueRect.top - sceneContainerRect.top + queueRect.height / 2;
+
             // 卡片高度 = sceneContainer 宽度 * 12.5% * 4/3（padding-bottom 相对于宽度）
             const cardHeightPixels = sceneContainerRect.width * 0.125 * (4 / 3);
-            
+
             // 让卡片中心对齐 queue-container 中心：top = queueCenter - cardHeight/2
             const cardTopY = queueCenterY - cardHeightPixels / 2;
-            
+
             // y = 距离 / scene-container 高度 * 100（百分比）
             const y = Math.max(0, (cardTopY / sceneContainerRect.height) * 100);
-            
+
             setQueueY(y);
         };
-        
+
         // 延迟计算，确保 DOM 已渲染
-        const timer = setTimeout(calculateQueueY, 100);
+        const timer = setTimeout(calculateQueueY, 200);
+        const timer2 = setTimeout(calculateQueueY, 500);
         window.addEventListener('resize', calculateQueueY);
         return () => {
             clearTimeout(timer);
+            clearTimeout(timer2);
             window.removeEventListener('resize', calculateQueueY);
         };
     }, [level]);
@@ -286,7 +309,8 @@ const Game: FC<{
         const CARD_WIDTH = 12.5;
         const GAP = 1;
         const result: Record<string, number> = {};
-        let x = (100 - (temp.length * CARD_WIDTH + (temp.length - 1) * GAP)) / 2;
+        let x =
+            (100 - (temp.length * CARD_WIDTH + (temp.length - 1) * GAP)) / 2;
         for (const symbol of temp) {
             result[symbol.id] = x;
             x += CARD_WIDTH + GAP;
@@ -345,7 +369,14 @@ const Game: FC<{
                 // 两区域有交集视为选中
                 // 两区域不重叠情况取反即为交集
                 const { x, y } = compare;
-                if (!(y + SYMBOL_HEIGHT <= y1 || y >= y2 || x + SYMBOL_WIDTH <= x1 || x >= x2)) {
+                if (
+                    !(
+                        y + SYMBOL_HEIGHT <= y1 ||
+                        y >= y2 ||
+                        x + SYMBOL_WIDTH <= x1 ||
+                        x >= x2
+                    )
+                ) {
                     cur.isCover = true;
                     break;
                 }
@@ -559,6 +590,93 @@ const Game: FC<{
         }, 10);
     };
 
+    /** AI寻找最佳下一步 - 贪心算法 */
+    const findBestMove = (): number | null => {
+        const availableCards = scene.filter(
+            (card) => card.status === 0 && !card.isCover
+        );
+        if (availableCards.length === 0) return null;
+
+        const slotIconCount: Record<string, number> = {};
+        queue.forEach((s) => {
+            slotIconCount[s.icon.name] = (slotIconCount[s.icon.name] || 0) + 1;
+        });
+
+        let bestIndex: number | null = null;
+        let bestScore = -Infinity;
+
+        availableCards.forEach((card) => {
+            const idx = scene.findIndex((c) => c.id === card.id);
+            const currentInSlot = slotIconCount[card.icon.name] || 0;
+            let score = 0;
+
+            if (currentInSlot === 2) {
+                score += 1000;
+            } else if (currentInSlot === 1) {
+                score += 100;
+            } else {
+                score += 10;
+            }
+
+            const remainingInScene = scene.filter(
+                (c) => c.status === 0 && c.icon.name === card.icon.name
+            ).length;
+            if (remainingInScene >= 2) score += 30;
+
+            if (queue.length >= 5 && currentInSlot === 0) {
+                score -= 50;
+            }
+
+            if (score > bestScore) {
+                bestScore = score;
+                bestIndex = idx;
+            }
+        });
+
+        return bestIndex;
+    };
+
+    /** 开始AI自动闯关 */
+    const startAutoPlay = async () => {
+        autoPlayRef.current = true;
+        setAutoPlay(true);
+
+        if (!once) {
+            setBgmOn(true);
+            setOnce(true);
+            startTimer();
+        }
+
+        while (autoPlayRef.current && !finished) {
+            if (animating) {
+                await waitTimeout(100);
+                continue;
+            }
+
+            const bestMove = findBestMove();
+            if (bestMove !== null) {
+                await clickSymbol(bestMove);
+            } else {
+                if (score > 0) {
+                    wash();
+                    await waitTimeout(500);
+                } else {
+                    autoPlayRef.current = false;
+                    setAutoPlay(false);
+                    break;
+                }
+            }
+
+            await waitTimeout(400);
+        }
+    };
+
+    /** 停止AI自动闯关 */
+    const stopAutoPlay = () => {
+        autoPlayRef.current = false;
+        setAutoPlay(false);
+    };
+
     return (
         <>
             <div className="level">
@@ -568,15 +686,18 @@ const Game: FC<{
                         <span className="stat-value">
                             <select
                                 value={level}
-                                onChange={(e) => selectLevel(Number(e.target.value))}
+                                onChange={(e) =>
+                                    selectLevel(Number(e.target.value))
+                                }
                             >
-                                {Array.from({ length: maxLevel }, (_, i) => i + 1).map(
-                                    (l) => (
-                                        <option key={l} value={l}>
-                                            {l}
-                                        </option>
-                                    )
-                                )}
+                                {Array.from(
+                                    { length: maxLevel },
+                                    (_, i) => i + 1
+                                ).map((l) => (
+                                    <option key={l} value={l}>
+                                        {l}
+                                    </option>
+                                ))}
                             </select>
                         </span>
                     </div>
@@ -625,6 +746,14 @@ const Game: FC<{
                     </button>
                     <button className="flex-grow" onClick={undo}>
                         撤销
+                    </button>
+                    <button
+                        className={`flex-grow ${
+                            autoPlay ? 'auto-playing' : ''
+                        }`}
+                        onClick={autoPlay ? stopAutoPlay : startAutoPlay}
+                    >
+                        {autoPlay ? '停止AI' : 'AI自动'}
                     </button>
                     <button className="flex-grow" onClick={wash}>
                         洗牌
